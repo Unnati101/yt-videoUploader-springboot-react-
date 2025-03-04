@@ -1,17 +1,87 @@
 import { CloudUpload, Description, Publish, Title, Visibility } from '@mui/icons-material'
 // Importing Material UI icons for use in the form, such as cloud upload, description, title, publish, and visibility icons.
 
-import { Box, Button, Container, FormControl, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
+import { Alert, Box, Button, Container, FormControl, InputAdornment, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
+import axios from 'axios';
+import { useAuth } from '../helper/AuthContext';
 // Importing Material UI components for building the layout and form elements like Box for layout, Button, Container for centralizing the content, FormControl for form controls, Paper for a card-like container, Select for dropdown, TextField for inputs, Typography for text display.
 
-import React from 'react'
+import React ,{useState} from 'react'
+import toast from 'react-hot-toast';
 // Importing React library to use JSX and functional components.
 
 function Upload() {
+     
+    const {token}=useAuth()
+    const[title,setTitle] = useState('');
+    const[desc,setDesc] = useState('');
+    const[visibility,setVisibility] = useState('');
+    const[videoFile,setVideoFile] = useState('');
+    const[message,setMessage] = useState('');
+
+    
+   function fileBoxChanged(event){
+    setVideoFile(event.target.files[0])
+   }
+
+ //all three values
+    function  changeValue(event){
+       
+        const name= event.target.name;
+        const value= event.target.value;
+
+
+        if(name==='title'){
+            setTitle(value);
+        } else if(name==='desc'){
+            setDesc(value);
+}else if(name==='visibility'){
+    setVisibility(value);
+}else{
+}
+}
+
+
+    async function formSubmitted(){
+      try{
+          console.log(videoFile);
+          //send file to derver
+          //ab we have two options either u send directly to youtube  means use yt apis but then cors error would come means aap client se direct yt ki apis call krke ni send krskte ho
+          //so we will took help from backend
+
+          const videoUploaderUrl = 'http://localhost:8080/api/v1/uploadVideo'
+          const formData = new FormData()
+          formData.append("title", title)
+          formData.append("desc", desc)
+          formData.append("visibility", visibility)
+          formData.append("videoFile", videoFile)
+          //we use axios here
+
+          const response = await axios.post(videoUploaderUrl,
+              formData,
+              {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": 'multipart/form-data'
+                  }
+              }
+          );
+
+          setMessage("video uploaded successfully");
+          toast.success("Upload success")
+      }catch(error){
+        console.log(error);
+        toast.error('uploading error')
+      }
+      }  
     return (
         <Container maxWidth="md">
             {/* A Container component to wrap and center the content. 'maxWidth="md"' restricts the container width to medium (for responsive design). */}
-
+            {message && <Alert sx={{
+                width:'100%',
+                marginTop:5
+            }}>{message}</Alert>}
+           
             <Paper elevation={6}
                 // Paper is used as a card-like structure to give a smooth background to the form with 'elevation={6}' providing a shadow effect.
                 sx={{
@@ -21,6 +91,9 @@ function Upload() {
                 }}
             // sx is a shortcut for style that provides padding, margin from the top, and rounded corners to make the form look better.
             >
+   {title}{desc}{visibility}
+
+
                 <Typography variant='h5' gutterBottom align='center' fontWeight={'bold'}>
                     {/* Typography is used to display text. Here, it is for the main heading of the form, using 'h5' size with bold font and centered alignment. */}
                     Upload Here
@@ -35,6 +108,8 @@ function Upload() {
                     {/* Box is a flexible container for layout. It uses flexbox to align child elements in a column with some margin on the top and gap between elements. */}
 
                     <TextField
+                    onChange={changeValue}
+                    name="title"
                         label={'Video Title'}
                         variant="outlined"
                         fullWidth
@@ -53,6 +128,8 @@ function Upload() {
                     />
 
                     <TextField
+                    name="desc"
+                    onChange={changeValue}
                         label={'Video Description'}
                         variant="outlined"
                         fullWidth
@@ -70,16 +147,21 @@ function Upload() {
                         }}
                     />
 
-                    <Box display='flex'
-                        alignContent={'center'}
-                        justifyContent={'space-between'}
+                    <Box
+                     display="flex"
+                        flexDirection={"row"}
+                        alignContent={"center"}
+                        justifyContent={"space-between"}
                     >
                         {/* This Box contains the file input and upload button. 'flex' display aligns them horizontally. It also aligns items centrally. */}
 
-                        <input type='file'
+                        <input
+                        onChange={fileBoxChanged}
+                         type='file'
                             accept='video/'
-                            id='video-upload' style={{ display: 'none' }}
-                            onChange={null}
+                            id='video-upload' 
+                            style={{ display: 'none' }}
+                            
                         />
                         {/* Hidden input of type 'file' to let the user select a video file. The file input is hidden by setting display to 'none'. */}
 
@@ -92,10 +174,12 @@ function Upload() {
                                 color='secondary'
                                 startIcon={<CloudUpload />}
                             >
-                                {/* Button that triggers the hidden file input. 'startIcon' adds the 'CloudUpload' icon at the start of the button. */}
-                                Upload Video here
+                                Select File
+                               
                             </Button>
+                           
                         </label>
+                        <Typography>{videoFile.name}</Typography>
                     </Box>
 
                     <FormControl fullWidth>
@@ -105,6 +189,8 @@ function Upload() {
                         {/* InputLabel for the dropdown list (Select component) indicating that it's for setting the visibility of the video. */}
 
                         <Select
+                        name="visibility"
+                        onChange={changeValue}
                             label="Visibility"
                             // Select component for the visibility options ('Public', 'Unlisted', 'Private'). It is used like a dropdown.
                             slotProps={{
@@ -131,7 +217,9 @@ function Upload() {
                     <Box display={'flex'} justifyContent='center'>
                         {/* Box to center the publish button horizontally. */}
 
-                        <Button variant="contained" color='primary' startIcon={<Publish />} fontWeight="bold" padding={1.5}>
+                        <Button 
+                        onClick={formSubmitted}
+                        variant="contained" color='primary' startIcon={<Publish />} fontWeight="bold" padding={1.5}>
                             {/* Button for publishing the video. 'Publish' icon is added at the start of the button text. 'Contained' makes the button solid with primary color. */}
                             Publish
                         </Button>
