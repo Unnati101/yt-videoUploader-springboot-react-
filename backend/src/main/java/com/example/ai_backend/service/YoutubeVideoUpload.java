@@ -42,7 +42,7 @@ public class YoutubeVideoUpload {
                         "  },\n" + 
                         "  \"status\": {\n" + 
                         "    \"privacyStatus\": \""+visibility+"\",\n" + 
-                        "    \"embeddable\": True,\n" + 
+                        "    \"embeddable\": true,\n" + 
                         "    \"license\": \"youtube\"\n" + 
                         "  }\n" + 
                         "}";

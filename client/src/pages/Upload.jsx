@@ -18,6 +18,7 @@ function Upload() {
     const[visibility,setVisibility] = useState('');
     const[videoFile,setVideoFile] = useState('');
     const[message,setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     
    function fileBoxChanged(event){
@@ -44,6 +45,7 @@ function Upload() {
 
     async function formSubmitted(){
       try{
+          setLoading(true)
           console.log(videoFile);
           //send file to derver
           //ab we have two options either u send directly to youtube  means use yt apis but then cors error would come means aap client se direct yt ki apis call krke ni send krskte ho
@@ -73,6 +75,9 @@ function Upload() {
         console.log(error);
         toast.error('uploading error')
       }
+      finally{
+        setLoading(false)
+      }
       }  
     return (
         <Container maxWidth="md">
@@ -91,7 +96,7 @@ function Upload() {
                 }}
             // sx is a shortcut for style that provides padding, margin from the top, and rounded corners to make the form look better.
             >
-   {title}{desc}{visibility}
+
 
 
                 <Typography variant='h5' gutterBottom align='center' fontWeight={'bold'}>
@@ -218,10 +223,19 @@ function Upload() {
                         {/* Box to center the publish button horizontally. */}
 
                         <Button 
+                        loading={loading}
+                        loadingPosition='start'
+                        disabled={loading}
                         onClick={formSubmitted}
-                        variant="contained" color='primary' startIcon={<Publish />} fontWeight="bold" padding={1.5}>
+                        variant="contained"
+                         color='primary' 
+                         startIcon={<Publish />} 
+                         fontWeight="bold" 
+                         padding={1.5}
+                         >
+
                             {/* Button for publishing the video. 'Publish' icon is added at the start of the button text. 'Contained' makes the button solid with primary color. */}
-                            Publish
+                            {loading ? "Uploading" : "Upload"}
                         </Button>
                     </Box>
                 </Box>

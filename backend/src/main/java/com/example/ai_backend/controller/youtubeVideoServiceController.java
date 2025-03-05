@@ -3,6 +3,7 @@ package com.example.ai_backend.controller;
 import java.io.IOException;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import com.example.ai_backend.service.YoutubeVideoUpload;
 
 @RestController
 @RequestMapping("/api/v1/uploadVideo")
+@CrossOrigin("*")
 public class youtubeVideoServiceController {
 
     private final YoutubeVideoUpload youtubeVideoUpload;
